@@ -48,8 +48,7 @@ app.configure( ->
 )
 
 app.get '/', (request, response) ->
-  console.log(request.loggedIn)
-  console.log(request.user)
-  response.render('index', everyauth: everyauth, title: 'hom3e')
+  response.render('index', user: request.user, title: 'hom3e')
 
 app.listen config.port
+
