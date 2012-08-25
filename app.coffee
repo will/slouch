@@ -42,6 +42,7 @@ app.configure( ->
   app.use(express.session({ secret: 'foobar' }))
   app.use(express.bodyParser())
   app.use(everyauth.middleware())
+  app.use(require('connect-assets')() )
   app.use(express.methodOverride())
   app.use(app.router)
   app.use(express.static(__dirname + '/public'))
