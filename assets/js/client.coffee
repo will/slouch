@@ -2,12 +2,10 @@ console.log 'hi'
 
 Todo = Backbone.Model.extend
   defaults: ->
-    title: 'empty todo...'
-    order: Todos.nextOrder()
-    done: false
+    desc: 'empty hope...'
 
   initialize: ->
-    @set(title: @defaults.title) unless @get('title')
+    @set(desc: @defaults.desc) unless @get('desc')
 
   toggle: ->
     @save(done: !@get('done'))
@@ -20,19 +18,6 @@ TodoList = Backbone.Collection.extend
 
   url: 'list.json'
 
-  done: ->
-    @filter( (todo) -> todo.get('done') )
-
-  remaining: ->
-    @without.apply(@, @done())
-
-  nextOrder: ->
-    return 1 unless @length
-    @last().get('order') + 1
-
-  comparator: (todo) ->
-    todo.get('order')
-
 Todos = new TodoList
 
 TodoView = Backbone.View.extend
@@ -41,7 +26,6 @@ TodoView = Backbone.View.extend
   template: _.template($('#item-template').html())
 
   events:
-    'click .toggle': 'toggleDone'
     'dblclick .view': 'edit'
     'click a.destroy': 'clear'
     'keypress .edit': 'updateOnEnter'
@@ -53,12 +37,8 @@ TodoView = Backbone.View.extend
 
   render: ->
     @$el.html(@template(@model.toJSON()))
-    @$el.toggleClass('done', @model.get('done'))
     @input = @$('.edit')
     this
-
-  toggleDone: ->
-    @model.toggle()
 
   edit: ->
     @$el.addClass 'editing'
@@ -67,7 +47,7 @@ TodoView = Backbone.View.extend
   close: ->
     value = @input.val()
     @clear() unless value
-    @model.save title: value
+    @model.save desc: value
     @$el.removeClass 'editing'
 
   updateOnEnter: (e) ->
@@ -83,8 +63,6 @@ AppView = Backbone.View.extend
 
   events:
     'keypress #new-todo': 'createOnEnter'
-    'click #clear-completed': 'clearCompleted'
-    'click #toggle-all': 'toggleAllComplete'
 
   initialize: ->
     @input = @$('#new-todo')
@@ -100,18 +78,13 @@ AppView = Backbone.View.extend
     Todos.fetch()
 
   render: ->
-    done = Todos.done().length
-    remaining = Todos.remaining().length
-
     if (Todos.length)
        @main.show()
        @footer.show()
-       @footer.html(@statsTemplate(done: done, remaining: remaining))
     else
       @main.hide()
       @footer.hide()
 
-    @allCheckbox.checked = !remaining
 
   addOne: (todo) ->
     view = new TodoView(model: todo)
@@ -124,13 +97,10 @@ AppView = Backbone.View.extend
     return unless e.keyCode == 13
     return unless @input.val()
 
-    Todos.create title: @input.val()
+    Todos.create desc: @input.val()
 
-  clearCompleted: ->
-    _.each( Todos.done(), (todo) -> todo.clear() )
-
-  toggleAllComplete: ->
-    done = @allCheckbox.checked
-    Todos.each( (todo) -> todo.save 'done': done )
 
 App = new AppView
+
+window.app = App
+window.todo = Todo
