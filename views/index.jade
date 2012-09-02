@@ -14,3 +14,31 @@ block content
     li Merge my thing   [finished] [continue]
     li Deploy a fix  [finished] [continue]
 
+
+  #todoapp
+    header
+      h1 Todos
+      input#new-todo(type='text, placeholder='what needs to be done?')
+    section#main
+      input#toggle-all(type='checkbox')
+      label(for='toggle-all)
+      ul#todo-list
+    footer
+      a#clear-completed Clear completed
+      #todo-count
+
+  |  <script type="text/template" id="item-template">
+  |    <div class="view">
+  |      <input class="toggle" type="checkbox" <%= done ? 'checked="checked"' : '' %> />
+  |      <label><%- title %></label>
+  |      <a class="destroy"></a>
+  |    </div>
+  |    <input class="edit" type="text" value="<%= title %>" />
+  |  </script>
+
+  |  <script type="text/template" id="stats-template">
+  |    <% if (done) { %>
+  |      <a id="clear-completed">Clear <%= done %> completed <%= done == 1 ? 'item' : 'items' %></a>
+  |    <% } %>
+  |    <div class="todo-count"><b><%= remaining %></b> <%= remaining == 1 ? 'item' : 'items' %> left</div>
+  |  </script>

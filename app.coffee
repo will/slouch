@@ -51,5 +51,9 @@ app.configure( ->
 app.get '/', (request, response) ->
   response.render('index', user: request.user, title: 'hom3e')
 
+app.get '/list.json', (request, response) ->
+  response.send( JSON.stringify([]) )
+
+console.log("port: #{config.port}")
 app.listen config.port
 

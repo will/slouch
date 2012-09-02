@@ -1,75 +1,136 @@
 console.log 'hi'
 
-Photo = Backbone.Model.extend
-  defaults:
-    src: 'what.jpg'
-    caption: 'a default image'
-    viewed: false
-    coordinates: [0,0]
+Todo = Backbone.Model.extend
+  defaults: ->
+    title: 'empty todo...'
+    order: Todos.nextOrder()
+    done: false
 
   initialize: ->
-    @this.on("change:src", ->
-      src = @get("src")
-      console.log 'Image src updated to ' + src)
+    @set(title: @defaults.title) unless @get('title')
 
-  changeSrc: (source) -> @set src: source
+  toggle: ->
+    @save(done: !@get('done'))
 
-# PhotoGallery = Backbone.Collection.extend
-#   model: Photo
-#
-#   viewed: ->
-#     @.filter (photo) -> photo.get('viewed')
-#
-#   unviewed: ->
-#     @.wihtout.apply(this, this.viewed())
-#
-#
-# buildPhotoView = (photoModel, photoController) ->
-#   base    = document.createElement('div')
-#   photoEl = document.createElement('div')
-#
-#   base.appendChild(photoEl)
-#
-#   render = ->
-#     photoEl.innerHTML = _.template('photoTemplate', src: photoModel.getSrc())
-#
-#   photoModel.addSubscriber render
-#
-#   photoEl.addEventListener('click', ->
-#     photoController.handleEvent('click', photoModel))
-#
-#   show = ->
-#     photoEl.style.display = ''
-#
-#   hide = ->
-#     photoEl.style.display = 'none'
-#
-#   showView: show, hideView: hide
-#
-#
-# PhotoRouter = Backbone.Router.extend
-#   routes: "photos/:id": "route"
-#
-#   route: (id) ->
-#     item = photoCollection.get(id)
-#     view = new PhotoView model: item
-#
-#     something.html( view.render().el )
-#
-#
-# PhotoView = Backbone.View.extend
-#   tagName: 'li'
-#
-#   template: _.template($('#photo-template').html())
-#
-#   events: "click img" : "toggleViewed"
-#
-#   initialize: ->
-#     _.bindAll(this, 'render')
-#     @model.on('change', @render)
-#     @model.on('destory', @remove)
-#
-#     render: ->
-#       @$el.html(@template(@model.toJSON()))
-#
-#     toggleViewed: -> @model.viewed()
+  clear: ->
+    @destroy()
+
+TodoList = Backbone.Collection.extend
+  model: Todo
+
+  url: 'list.json'
+
+  done: ->
+    @filter( (todo) -> todo.get('done') )
+
+  remaining: ->
+    @without.apply(@, @done())
+
+  nextOrder: ->
+    return 1 unless @length
+    @last().get('order') + 1
+
+  comparator: (todo) ->
+    todo.get('order')
+
+Todos = new TodoList
+
+TodoView = Backbone.View.extend
+  tagName: 'li'
+
+  template: _.template($('#item-template').html())
+
+  events:
+    'click .toggle': 'toggleDone'
+    'dblclick .view': 'edit'
+    'click a.destroy': 'clear'
+    'keypress .edit': 'updateOnEnter'
+    'blur .edit': 'close'
+
+  initialize: ->
+    @model.bind('change', @render, this)
+    @model.bind('destroy', @remove, this)
+
+  render: ->
+    @$el.html(@template(@model.toJSON()))
+    @$el.toggleClass('done', @model.get('done'))
+    @input = @$('.edit')
+    this
+
+  toggleDone: ->
+    @model.toggle()
+
+  edit: ->
+    @$el.addClass 'editing'
+    @input.focus()
+
+  close: ->
+    value = @input.val()
+    @clear() unless value
+    @model.save title: value
+    @$el.removeClass 'editing'
+
+  updateOnEnter: (e) ->
+    @close() if e.keyCode == 13
+
+  clear: ->
+    @model.clear()
+
+AppView = Backbone.View.extend
+  el: $('#todoapp')
+
+  statsTemplate: _.template($('#stats-template').html())
+
+  events:
+    'keypress #new-todo': 'createOnEnter'
+    'click #clear-completed': 'clearCompleted'
+    'click #toggle-all': 'toggleAllComplete'
+
+  initialize: ->
+    @input = @$('#new-todo')
+    @allCheckbox = @$('#toggle-all')[0]
+
+    Todos.bind('add', @addOne, @)
+    Todos.bind('reset', @addAll, @)
+    Todos.bind('all', @render, @)
+
+    @footer = @$('footer')
+    @main = @$('#main')
+
+    Todos.fetch()
+
+  render: ->
+    done = Todos.done().length
+    remaining = Todos.remaining().length
+
+    if (Todos.length)
+       @main.show()
+       @footer.show()
+       @footer.html(@statsTemplate(done: done, remaining: remaining))
+    else
+      @main.hide()
+      @footer.hide()
+
+    @allCheckbox.checked = !remaining
+
+  addOne: (todo) ->
+    view = new TodoView(model: todo)
+    @$("#todo-list").append(view.render().el)
+
+  addAll: ->
+    Todos.each(@addOne)
+
+  createOnEnter: (e) ->
+    return unless e.keyCode == 13
+    return unless @input.val()
+
+    Todos.create title: @input.val()
+
+  clearCompleted: ->
+    _.each( Todos.done(), (todo) -> todo.clear() )
+
+  toggleAllComplete: ->
+    done = @allCheckbox.checked
+    Todos.each( (todo) -> todo.save 'done': done )
+
+App = new AppView
