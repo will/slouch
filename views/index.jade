@@ -1,8 +1,34 @@
 extends layout
 
 block content
-  h1= title
+  #todoapp
+    header
+      h1 Hopes
+      input#new-todo(type='text', placeholder='what needs to be done?')
+    section#main
+      h3 today:
+      ul#todo-list-today
+      h3 old
+      ul#todo-list-old
+    footer
+      a#clear-completed Clear completed
+      #todo-count
 
+  |  <script type="text/template" id="item-template">
+  |    <div class="view">
+  |      <label><%- desc %></label>
+  |      <%- date %>
+  |      <a class="destroy">x</a>
+  |    </div>
+  |    <input class="edit" type="text" value="<%= desc %>" />
+  |  </script>
+
+  |  <script type="text/template" id="stats-template">
+  |    <div class="todo-count"><b><%= remaining %></b> <%= remaining == 1 ? 'item' : 'items' %> left</div>
+  |  </script>
+
+
+  h1= title
   h2 Yesterday 2012-04-25
   ul
     li Work on a query [finished] [continue]
@@ -15,24 +41,3 @@ block content
     li Deploy a fix  [finished] [continue]
 
 
-  #todoapp
-    header
-      h1 Todos
-      input#new-todo(type='text, placeholder='what needs to be done?')
-    section#main
-      ul#todo-list
-    footer
-      a#clear-completed Clear completed
-      #todo-count
-
-  |  <script type="text/template" id="item-template">
-  |    <div class="view">
-  |      <label><%- desc %></label>
-  |      <a class="destroy"></a>
-  |    </div>
-  |    <input class="edit" type="text" value="<%= desc %>" />
-  |  </script>
-
-  |  <script type="text/template" id="stats-template">
-  |    <div class="todo-count"><b><%= remaining %></b> <%= remaining == 1 ? 'item' : 'items' %> left</div>
-  |  </script>

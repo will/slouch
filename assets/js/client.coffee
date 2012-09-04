@@ -3,6 +3,8 @@ console.log 'hi'
 Todo = Backbone.Model.extend
   defaults: ->
     desc: 'empty hope...'
+    date: new Date()
+    name: 'will'
 
   initialize: ->
     @set(desc: @defaults.desc) unless @get('desc')
@@ -12,6 +14,9 @@ Todo = Backbone.Model.extend
 
   clear: ->
     @destroy()
+
+  isToday: ->
+    @get('date').getDate() == (new Date).getDate()
 
 TodoList = Backbone.Collection.extend
   model: Todo
@@ -59,8 +64,6 @@ TodoView = Backbone.View.extend
 AppView = Backbone.View.extend
   el: $('#todoapp')
 
-  statsTemplate: _.template($('#stats-template').html())
-
   events:
     'keypress #new-todo': 'createOnEnter'
 
@@ -76,19 +79,24 @@ AppView = Backbone.View.extend
     @main = @$('#main')
 
     Todos.fetch()
+    Todos.create desc: 'a thing yesterday', date: new Date(2012,9,2)
+    Todos.create desc: 'something else yesterday', date: new Date(2012,9,2)
 
   render: ->
-    if (Todos.length)
+    #if (Todos.length)
        @main.show()
        @footer.show()
-    else
-      @main.hide()
-      @footer.hide()
-
+    #else
+    #  @main.hide()
+    #  @footer.hide()
 
   addOne: (todo) ->
+    if todo.isToday()
+      el = "#todo-list-today"
+    else
+      el = "#todo-list-old"
     view = new TodoView(model: todo)
-    @$("#todo-list").append(view.render().el)
+    @$(el).append(view.render().el)
 
   addAll: ->
     Todos.each(@addOne)
@@ -99,8 +107,7 @@ AppView = Backbone.View.extend
 
     Todos.create desc: @input.val()
 
-
 App = new AppView
 
 window.app = App
-window.todo = Todo
+window.Todos = Todos
