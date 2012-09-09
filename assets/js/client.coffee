@@ -65,6 +65,7 @@ TodoView = Backbone.View.extend
 
   bump: ->
     @model.set('bumpCount', @model.get('bumpCount') + 1)
+    @model.save()
 
   clear: ->
     @model.clear()

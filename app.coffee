@@ -1,6 +1,8 @@
 express = require('express')
 config = require('./config')
+uuid = require('node-uuid')
 app = express.createServer()
+_ = require('underscore')
 
 everyauth = require('everyauth')
 everyauth.debug = true
@@ -53,16 +55,19 @@ app.get '/', (request, response) ->
 
 list = [
   {
+    id: uuid()
     desc: 'today'
     date: new Date()
     bumpCount: 0
   },
   {
+    id: uuid()
     desc: 'old'
     date: new Date(2007,9,2)
     bumpCount: 2
   },
   {
+    id: uuid()
     desc: 'also old'
     date: new Date(2010,9,2)
     bumpCount: 0
@@ -73,8 +78,24 @@ app.get '/list', (request, response) ->
   response.send( JSON.stringify(list) )
 
 app.post '/list', (request, response) ->
-  list.push request.body
-  response.send( JSON.stringify([]) )
+  item = request.body
+  item.id = uuid()
+  list.push item
+  response.send( JSON.stringify(item) )
+
+app.get '/list/:id', (request, response) ->
+  item = _.find( list, (it) -> it.id == request.params.id )
+  response.send JSON.stringify(item)
+
+app.put '/list/:id', (request, response) ->
+  list = _.reject( list, (it) -> it.id == request.params.id )
+  item = request.body
+  list.push item
+  response.send JSON.stringify(item)
+
+app.delete '/list/:id', (request, response) ->
+  list = _.reject( list, (it) -> it.id == request.params.id )
+  response.send 'ok'
 
 console.log("port: #{config.port}")
 app.listen config.port
