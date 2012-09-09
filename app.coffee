@@ -51,7 +51,29 @@ app.configure( ->
 app.get '/', (request, response) ->
   response.render('index', user: request.user, title: 'hom3e')
 
-app.get '/list.json', (request, response) ->
+list = [
+  {
+    desc: 'today'
+    date: new Date()
+    bumpCount: 0
+  },
+  {
+    desc: 'old'
+    date: new Date(2007,9,2)
+    bumpCount: 2
+  },
+  {
+    desc: 'also old'
+    date: new Date(2010,9,2)
+    bumpCount: 0
+  }
+]
+
+app.get '/list', (request, response) ->
+  response.send( JSON.stringify(list) )
+
+app.post '/list', (request, response) ->
+  list.push request.body
   response.send( JSON.stringify([]) )
 
 console.log("port: #{config.port}")

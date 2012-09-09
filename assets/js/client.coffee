@@ -5,6 +5,7 @@ Todo = Backbone.Model.extend
     desc: 'empty hope...'
     date: new Date()
     name: 'will'
+    bumpCount: 0
 
   initialize: ->
     @set(desc: @defaults.desc) unless @get('desc')
@@ -21,7 +22,10 @@ Todo = Backbone.Model.extend
 TodoList = Backbone.Collection.extend
   model: Todo
 
-  url: 'list.json'
+  url: 'list'
+
+  comparator: (a) ->
+    a.get 'date'
 
 Todos = new TodoList
 
@@ -33,6 +37,7 @@ TodoView = Backbone.View.extend
   events:
     'dblclick .view': 'edit'
     'click a.destroy': 'clear'
+    'click a.bump': 'bump'
     'keypress .edit': 'updateOnEnter'
     'blur .edit': 'close'
 
@@ -58,6 +63,9 @@ TodoView = Backbone.View.extend
   updateOnEnter: (e) ->
     @close() if e.keyCode == 13
 
+  bump: ->
+    @model.set('bumpCount', @model.get('bumpCount') + 1)
+
   clear: ->
     @model.clear()
 
@@ -79,8 +87,6 @@ AppView = Backbone.View.extend
     @main = @$('#main')
 
     Todos.fetch()
-    Todos.create desc: 'a thing yesterday', date: new Date(2012,9,2)
-    Todos.create desc: 'something else yesterday', date: new Date(2012,9,2)
 
   render: ->
     #if (Todos.length)
@@ -91,10 +97,7 @@ AppView = Backbone.View.extend
     #  @footer.hide()
 
   addOne: (todo) ->
-    if todo.isToday()
-      el = "#todo-list-today"
-    else
-      el = "#todo-list-old"
+    el = "#todo-list"
     view = new TodoView(model: todo)
     @$(el).append(view.render().el)
 

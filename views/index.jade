@@ -6,10 +6,7 @@ block content
       h1 Hopes
       input#new-todo(type='text', placeholder='what needs to be done?')
     section#main
-      h3 today:
-      ul#todo-list-today
-      h3 old
-      ul#todo-list-old
+      ul#todo-list
     footer
       a#clear-completed Clear completed
       #todo-count
@@ -19,6 +16,7 @@ block content
   |      <label><%- desc %></label>
   |      <%- date %>
   |      <a class="destroy">x</a>
+  |      <a class="bump">bump<%= bumpCount == 0 ? '' : " (" + bumpCount + ")" %></a>
   |    </div>
   |    <input class="edit" type="text" value="<%= desc %>" />
   |  </script>
