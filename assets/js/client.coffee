@@ -1,5 +1,9 @@
 console.log 'hi'
 
+checkModel = (model) ->
+  return 'desc to short' if model.desc.length < 5
+  return 'desc too long' if model.desc.length > 100
+
 Todo = Backbone.Model.extend
   defaults: ->
     desc: 'empty hope...'
@@ -9,6 +13,10 @@ Todo = Backbone.Model.extend
 
   initialize: ->
     @set(desc: @defaults.desc) unless @get('desc')
+    @on('error', (model, err) -> console.log(err))
+
+  validate: (attrs) ->
+    checkModel(attrs)
 
   toggle: ->
     @save(done: !@get('done'))
@@ -106,10 +114,14 @@ AppView = Backbone.View.extend
     Todos.each(@addOne)
 
   createOnEnter: (e) ->
+    $('#error').text( '' )
     return unless e.keyCode == 13
     return unless @input.val()
 
-    Todos.create desc: @input.val()
+    Todos.create {desc: @input.val()},
+      error: (model, error) ->
+        $('#error').text( error )
+        console.log "error here is " + error
 
 App = new AppView
 

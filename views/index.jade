@@ -4,7 +4,8 @@ block content
   #todoapp
     header
       h1 Hopes
-      input#new-todo(type='text', placeholder='what needs to be done?')
+      input#new-todo(type='text', placeholder='today I hope to...')
+      #error
     section#main
       ul#todo-list
     footer
@@ -15,8 +16,8 @@ block content
   |    <div class="view">
   |      <label><%- desc %></label>
   |      <%- date %>
-  |      <a class="destroy">x</a>
-  |      <a class="bump">bump<%= bumpCount == 0 ? '' : " (" + bumpCount + ")" %></a>
+  |      <a class="bump">[bump]<%= bumpCount == 0 ? '' : " (" + bumpCount + ")" %></a>
+  |      <a class="destroy">[finished]</a>
   |    </div>
   |    <input style='visibility:hidden' class="edit" type="text" value="<%= desc %>" />
   |  </script>
@@ -24,18 +25,5 @@ block content
   |  <script type="text/template" id="stats-template">
   |    <div class="todo-count"><b><%= remaining %></b> <%= remaining == 1 ? 'item' : 'items' %> left</div>
   |  </script>
-
-
-  h1= title
-  h2 Yesterday 2012-04-25
-  ul
-    li Work on a query [finished] [continue]
-    li Did support tickets [finished] [continue]
-    li fix a thing (finished)
-
-  h2 Today 2012-04-26
-  ul
-    li Merge my thing   [finished] [continue]
-    li Deploy a fix  [finished] [continue]
 
 
