@@ -3,6 +3,10 @@ config = require('./config')
 uuid = require('node-uuid')
 app = express.createServer()
 _ = require('underscore')
+pg = require('pg').native
+
+db = new pg.Client(config.database_url)
+db.connect()
 
 everyauth = require('everyauth')
 everyauth.debug = true
@@ -91,6 +95,9 @@ app.put '/list/:id', (request, response) ->
   list = _.reject( list, (it) -> it.id == request.params.id )
   item = request.body
   list.push item
+
+  db.query('insert into hopes (data) values($1) returning *', item)
+
   response.send JSON.stringify(item)
 
 app.delete '/list/:id', (request, response) ->
