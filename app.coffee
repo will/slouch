@@ -60,58 +60,26 @@ app.configure( ->
 app.get '/', (request, response) ->
   response.render('index', user: request.user, title: 'hom3e')
 
-list = [
-  {
-    id: uuid()
-    desc: 'today'
-    date: new Date()
-    bumpCount: 0
-  },
-  {
-    id: uuid()
-    desc: 'old'
-    date: new Date(2007,9,2)
-    bumpCount: 2
-  },
-  {
-    id: uuid()
-    desc: 'also old'
-    date: new Date(2010,9,2)
-    bumpCount: 0
-  }
-]
-
 app.get '/list', (request, response) ->
-  jsore.getAll (err, hopes) ->
+  jsore.getAllByUserId request.user?.google?.id, (err, hopes) ->
     response.send( JSON.stringify(hopes) )
 
 app.post '/list', (request, response) ->
+  request.body.user_id = request.user.google.id
   jsore.create request.body, (err, hope) ->
-    if err
-      response.send JSON.stringify(err)
-    else
-      response.send( JSON.stringify(hope) )
+    response.send JSON.stringify(err || hope)
 
 app.get '/list/:id', (request, response) ->
   jsore.get request.params.id, (err, hope) ->
-    if err
-      response.send JSON.stringify(err)
-    else
-      response.send( JSON.stringify(hope) )
+    response.send JSON.stringify(err || hope)
 
 app.put '/list/:id', (request, response) ->
   jsore.update request.body, (err, hope) ->
-    if err
-      response.send JSON.stringify(err)
-    else
-      response.send JSON.stringify(hope)
+    response.send JSON.stringify(err || hope)
 
 app.delete '/list/:id', (request, response) ->
   jsore.destroy request.params.id, (err) ->
-    if err
-      response.send JSON.stringify(err)
-    else
-      response.send 'ok'
+    response.send JSON.stringify(err || 'ok')
 
 console.log("port: #{config.port}")
 app.listen config.port
