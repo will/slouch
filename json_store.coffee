@@ -1,14 +1,23 @@
+_ = require('underscore')
 class JsonStore
   constructor: (db, tablename) ->
     @db = db
     @tablename = tablename
 
+  getAll: (callback) ->
+    @db.query(
+      "select * from #{@tablename}",
+      (err, res) ->
+        if err
+          callback(err)
+        else
+          callback(null, _.map(res.rows, objFromRow))
+    )
+
   get: (id, callback) ->
     @db.query(
       "select * from #{@tablename} where id=$1",
       [id], (err,res) ->
-        console.log(err)
-        console.log(res)
         if err
           callback(err)
         else

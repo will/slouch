@@ -4,9 +4,12 @@ uuid = require('node-uuid')
 app = express.createServer()
 _ = require('underscore')
 pg = require('pg').native
+JsonStore = require('./json_store')
 
 db = new pg.Client(config.database_url)
 db.connect()
+
+jsore = new JsonStore(db, 'hopes')
 
 everyauth = require('everyauth')
 everyauth.debug = true
@@ -79,30 +82,36 @@ list = [
 ]
 
 app.get '/list', (request, response) ->
-  response.send( JSON.stringify(list) )
+  jsore.getAll (err, hopes) ->
+    response.send( JSON.stringify(hopes) )
 
 app.post '/list', (request, response) ->
-  item = request.body
-  item.id = uuid()
-  list.push item
-  response.send( JSON.stringify(item) )
+  jsore.create request.body, (err, hope) ->
+    if err
+      response.send JSON.stringify(err)
+    else
+      response.send( JSON.stringify(hope) )
 
 app.get '/list/:id', (request, response) ->
-  item = _.find( list, (it) -> it.id == request.params.id )
-  response.send JSON.stringify(item)
+  jsore.get request.params.id, (err, hope) ->
+    if err
+      response.send JSON.stringify(err)
+    else
+      response.send( JSON.stringify(hope) )
 
 app.put '/list/:id', (request, response) ->
-  list = _.reject( list, (it) -> it.id == request.params.id )
-  item = request.body
-  list.push item
-
-  db.query('insert into hopes (data) values($1) returning *', item)
-
-  response.send JSON.stringify(item)
+  jsore.update request.body, (err, hope) ->
+    if err
+      response.send JSON.stringify(err)
+    else
+      response.send JSON.stringify(hope)
 
 app.delete '/list/:id', (request, response) ->
-  list = _.reject( list, (it) -> it.id == request.params.id )
-  response.send 'ok'
+  jsore.destroy request.params.id, (err) ->
+    if err
+      response.send JSON.stringify(err)
+    else
+      response.send 'ok'
 
 console.log("port: #{config.port}")
 app.listen config.port
