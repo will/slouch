@@ -1,27 +1,33 @@
 !!!
 html
   head
-    title Auth App: #{title}
+    title Slouch
     link(rel='stylesheet', href='/stylesheets/style.css')
+
   body
-    a#Home(href="/") Home
-    br
-    a#Home(href="/private") Private
-    - if(user)
-      ul#Authed
-        li= JSON.stringify(user)
-        li
-          img(src="#{user.google.picture}", width=50)
-        li
-          a(href="/logout") Sign Out
-    - else
-      ul#Authenticate
-        li
-          a(href='auth/google') Sign in with google
+    .container
+      .hero-unit
+        .row
+          .span8
+            h1 Slouch
 
-    block content
+          - if(user)
+            .span2
+              br
+              img(src="#{user.google.picture}", style='border-radius:20px;', width=50)
+              br
+              = user.google.name
+              br
+              a(href="/logout") Sign Out
 
-    script(src='http://code.jquery.com/jquery-1.8.0.min.js')
-    script(src='/underscore-min.js')
-    script(src='/backbone.js')
-    != js('client')
+        - if(!user)
+          h2
+            a(href='auth/google') Sign in with google
+
+        - if(user)
+          block content
+
+          script(src='http://code.jquery.com/jquery-1.8.0.min.js')
+          script(src='/underscore-min.js')
+          script(src='/backbone.js')
+          != js('client')

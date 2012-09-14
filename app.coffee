@@ -61,6 +61,7 @@ app.get '/', (request, response) ->
   response.render('index', user: request.user, title: 'hom3e')
 
 app.get '/list', (request, response) ->
+  console.log request.user
   jsore.getAllByUserId request.user?.google?.id, (err, hopes) ->
     response.send( JSON.stringify(hopes) )
 
