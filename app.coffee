@@ -43,12 +43,20 @@ everyauth.google
   )
   .redirectPath('/');
 
+ensureSSL = (req, res, next) ->
+  unless config.env == 'production'
+    return next()
+  if req.headers["x-forwarded-proto"] == "https"
+    return next()
+  res.redirect("https://" + req.headers.host + req.url)
+
 app.configure( ->
   app.set('views', __dirname + '/views')
   app.set('view engine', 'jade')
   app.use(express.logger())
   app.use(express.cookieParser())
-  app.use(express.session({ secret: 'foobar' }))
+  app.use(express.session({ secret: config.secret }))
+  app.use(ensureSSL)
   app.use(express.bodyParser())
   app.use(everyauth.middleware())
   app.use(require('connect-assets')() )
