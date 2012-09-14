@@ -12,7 +12,7 @@ block content
   |  <script type="text/template" id="item-template">
   |    <div class="view">
   |      <label><%- desc %></label>
-  |      <%- date %>
+  |      <%- moment(date).calendar() %>
   |      <a class="bump">[bump]<%= bumpCount == 0 ? '' : " (" + bumpCount + ")" %></a>
   |      <a class="destroy">[finished]</a>
   |    </div>
