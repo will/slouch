@@ -1,14 +1,14 @@
-console.log 'hi'
-
 checkModel = (model) ->
-  return 'desc to short' if model.desc.length < 5
-  return 'desc too long' if model.desc.length > 100
+  return 'date not set' unless model.date
+  return 'description missing' unless model.desc
+  return 'description too short' if model.desc.length < 5
+  return 'description too long'  if model.desc.length > 100
+  return 'bump count not positive' unless model.bumpCount >= 0
 
 Hope = Backbone.Model.extend
   defaults: ->
     desc: 'empty hope...'
     date: new Date()
-    name: 'will'
     bumpCount: 0
 
   initialize: ->
