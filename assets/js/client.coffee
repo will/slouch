@@ -4,7 +4,7 @@ checkModel = (model) ->
   return 'desc to short' if model.desc.length < 5
   return 'desc too long' if model.desc.length > 100
 
-Todo = Backbone.Model.extend
+Hope = Backbone.Model.extend
   defaults: ->
     desc: 'empty hope...'
     date: new Date()
@@ -27,17 +27,17 @@ Todo = Backbone.Model.extend
   isToday: ->
     @get('date').getDate() == (new Date).getDate()
 
-TodoList = Backbone.Collection.extend
-  model: Todo
+HopeList = Backbone.Collection.extend
+  model: Hope
 
   url: 'list'
 
   comparator: (a) ->
     a.get 'date'
 
-Todos = new TodoList
+Hopes = new HopeList
 
-TodoView = Backbone.View.extend
+HopeView = Backbone.View.extend
   tagName: 'li'
 
   template: _.template($('#item-template').html())
@@ -79,46 +79,42 @@ TodoView = Backbone.View.extend
     @model.clear()
 
 AppView = Backbone.View.extend
-  el: $('#todoapp')
+  el: $('#hopeapp')
 
   events:
-    'keypress #new-todo': 'createOnEnter'
+    'keypress #new-hope': 'createOnEnter'
 
   initialize: ->
-    @input = @$('#new-todo')
+    @input = @$('#new-hope')
     @allCheckbox = @$('#toggle-all')[0]
 
-    Todos.bind('add', @addOne, @)
-    Todos.bind('reset', @addAll, @)
-    Todos.bind('all', @render, @)
+    Hopes.bind('add', @addOne, @)
+    Hopes.bind('reset', @addAll, @)
+    Hopes.bind('all', @render, @)
 
     @footer = @$('footer')
     @main = @$('#main')
 
-    Todos.fetch()
+    Hopes.fetch()
 
   render: ->
-    #if (Todos.length)
-       @main.show()
-       @footer.show()
-    #else
-    #  @main.hide()
-    #  @footer.hide()
+    @main.show()
+    @footer.show()
 
-  addOne: (todo) ->
-    el = "#todo-list"
-    view = new TodoView(model: todo)
+  addOne: (hope) ->
+    el = "#hope-list"
+    view = new HopeView(model: hope)
     @$(el).append(view.render().el)
 
   addAll: ->
-    Todos.each(@addOne)
+    Hopes.each(@addOne)
 
   createOnEnter: (e) ->
     $('#error').text( '' )
     return unless e.keyCode == 13
     return unless @input.val()
 
-    Todos.create {desc: @input.val()},
+    Hopes.create {desc: @input.val()},
       error: (model, error) ->
         $('#error').text( error )
         console.log "error here is " + error
@@ -126,4 +122,4 @@ AppView = Backbone.View.extend
 App = new AppView
 
 window.app = App
-window.Todos = Todos
+window.hopes = Hopes

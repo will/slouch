@@ -1,13 +1,13 @@
 extends layout
 
 block content
-  #todoapp
+  #hopeapp
     header
       h3 Hopes
-      input#new-todo(type='text', placeholder='today I hope to...')
+      input#new-hope(type='text', placeholder='today I hope to...')
       #error
     section#main
-      ul#todo-list
+      ul#hope-list
 
   |  <script type="text/template" id="item-template">
   |    <div class="view">
@@ -17,10 +17,6 @@ block content
   |      <a class="destroy">[finished]</a>
   |    </div>
   |    <input style='visibility:hidden' class="edit" type="text" value="<%= desc %>" />
-  |  </script>
-
-  |  <script type="text/template" id="stats-template">
-  |    <div class="todo-count"><b><%= remaining %></b> <%= remaining == 1 ? 'item' : 'items' %> left</div>
   |  </script>
 
 
