@@ -9,7 +9,7 @@ JsonStore = require('./json_store')
 db = new pg.Client(config.database_url)
 db.connect()
 
-jsore = new JsonStore(db, 'hopes')
+jstore = new JsonStore(db, 'hopes')
 
 everyauth = require('everyauth')
 everyauth.debug = true
@@ -70,24 +70,24 @@ app.get '/', (request, response) ->
 
 app.get '/list', (request, response) ->
   console.log request.user
-  jsore.getAllByUserId request.user?.google?.id, (err, hopes) ->
+  jstore.getAllByUserId request.user?.google?.id, (err, hopes) ->
     response.send( JSON.stringify(hopes) )
 
 app.post '/list', (request, response) ->
   request.body.user_id = request.user.google.id
-  jsore.create request.body, (err, hope) ->
+  jstore.create request.body, (err, hope) ->
     response.send JSON.stringify(err || hope)
 
 app.get '/list/:id', (request, response) ->
-  jsore.get request.params.id, (err, hope) ->
+  jstore.get request.params.id, (err, hope) ->
     response.send JSON.stringify(err || hope)
 
 app.put '/list/:id', (request, response) ->
-  jsore.update request.body, (err, hope) ->
+  jstore.update request.body, (err, hope) ->
     response.send JSON.stringify(err || hope)
 
 app.delete '/list/:id', (request, response) ->
-  jsore.destroy request.params.id, (err) ->
+  jstore.destroy request.params.id, (err) ->
     response.send JSON.stringify(err || 'ok')
 
 console.log("port: #{config.port}")
