@@ -5,7 +5,7 @@ class JsonStore
     @tablename = tablename
 
   getAllByUserId: (userId, callback) ->
-    console.log @db.query(
+    @db.query(
       "select * from #{@tablename} where json_select($1, data) = $2",
       ['.user_id', '"'+userId+'"'],
       (err, res) ->
